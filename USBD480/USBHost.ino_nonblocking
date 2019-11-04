@@ -1,0 +1,206 @@
+// Simple test of USB Host
+//
+// This example is in the public domain
+
+#include "USBHost_t36.h"
+#include "usbd480.h"
+#include "SdFat.h"
+
+
+USBHost myusb;
+USBHub hub1(myusb);
+USBD480Display usbd480(myusb);
+SdFatSdioEX sdEx;
+
+
+
+#define RED		RGB_16_RED
+#define GREEN	RGB_16_GREEN
+#define BLUE	RGB_16_BLUE
+#define WHITE	RGB_16_WHITE
+
+
+#define bwidth			DWIDTH
+#define bheight			16
+#define blen			(bwidth * bheight * sizeof(uint16_t))
+
+uint8_t writeBuffer[blen];
+
+static File file;
+static uint32_t img_frame;
+
+static uint32_t doTests = 0;
+
+
+static uint32_t t2 = 0;
+static uint32_t t3 = 0;
+
+
+
+
+
+inline bool sdBusy ()
+{
+	return sdEx.card()->isBusy();
+}
+
+bool sdInit ()
+{
+	if (!sdEx.begin()){
+      Serial.println("sdEx.begin() failed");
+      return false;
+     }
+
+	// make sdEx the current volume.
+	sdEx.chvol();
+	return 1;
+}
+
+void sdToDisplayTest (const char *filename)
+{
+	
+	Serial.printf("sdToDisplayTest:	 %s", filename);
+	Serial.println();
+	
+	t3 = 0;
+	t2 = millis();
+		
+		
+	tx_descript_t *context = &usbd480.tx_writeCtx;
+
+	context->len = blen;
+	context->buffer = writeBuffer;
+	context->rows = bheight;
+	context->row = 0;
+	context->frame = 0;
+	img_frame = 0;
+	
+	if (!file.open(filename, O_RDONLY)){
+		Serial.println("file.open() failed");
+	}else{
+		//file.read(context->buffer, 512);
+		file.rewind();
+		usbd480.drawScreenArea2(NULL, DWIDTH, DHEIGHT);
+	}
+}
+
+int driver_callback (uint32_t msg, intptr_t *value1, uint32_t value2)
+{
+	//Serial.printf("driver_callback %i %i %i", (int)msg, (int)value1, (int)value2);
+	//Serial.println();
+	
+	if (msg == USBD_MSG_WRITEREADY){
+		tx_descript_t *context = (tx_descript_t*)value1;
+		
+		if (img_frame < 1000){
+			if (context->row < DHEIGHT){
+				//Serial.printf("driver_callback row %i %i %i\r\n", img_frame, context->frame, context->row);
+				
+				size_t bytesRead = file.read(writeBuffer, blen);
+				//Serial.printf("driver_callback bytesRead %i %i\r\n", (int)bytesRead, (int)context->len);
+				if (bytesRead == context->len){
+					return 1;
+				}
+			}else{
+				return 0;
+			}
+		}else{
+			file.close();
+		}
+
+		return 0;
+		
+	}else if (msg == USBD_MSG_WRITEEND){
+		tx_descript_t *context = (tx_descript_t*)value1;
+		
+		if (img_frame >= 1000){
+			file.close();
+
+			t3 = millis();
+			doTests = 1;
+			return 0;
+		}
+
+		context->row = 0;
+		img_frame++;
+		context->frame++;
+		usbd480.drawScreenArea2(NULL, DWIDTH, DHEIGHT);
+		return 1;
+
+	}else if (msg == USBD_MSG_DISPLAYREADY){
+		//delay(100);
+		
+		char name[DEVICE_NAMELENGTH+1];
+		char serial[DEVICE_SERIALLENGTH+1];
+		uint32_t width = 0;
+		uint32_t height = 0;
+		uint32_t version = 0;
+	
+		usbd480.getDeviceDetails(name, &width, &height, &version, serial);
+		Serial.println(name);
+		Serial.println(serial);
+		Serial.printf("%i %i %i\r\n", width, height, version);
+
+		delay(5);
+
+		doTests = 1;
+	}
+	
+	return 0;
+}
+
+
+void setup ()
+{
+	while (!Serial) ; // wait for Arduino Serial Monitor
+	
+	Serial.println("USB Host Testing");
+	
+	myusb.begin();
+	usbd480.setCallbackFunc(driver_callback);
+	delay(25);
+	sdInit();
+}
+
+const char *filetests[] = {
+	"Lovey-Dovey.raw",
+	"TheMatrix_480x272x2.raw",
+	"T-AraSexyLove.raw",
+	"Pastelpower-JeanPaul.raw",
+	"ManicSheep.raw",
+	"JupiterAscending.raw",
+	"CrouchingTiger.raw",
+	"TheWarlords.raw",
+	"SwordsmanII.raw",	
+	NULL,
+};
+
+static uint32_t fidx = 0;
+	
+void loop ()
+{
+	myusb.Task();
+
+	if (doTests){
+		doTests = 0;
+
+		if (t3){
+			int ct = 1000;
+			float t = (float)(t3-t2) / (float)ct;
+			//Serial.printf("sdToDisplayTest:	 %s", filename);
+			//Serial.println();
+			Serial.printf("  time: m:%i fps:%f", (int)t3-t2, 1.0f/(t/1000.0f));
+			Serial.println();
+
+			t3 = 0;
+		}
+	
+		if (filetests[fidx]){
+			delay(100);
+			sdToDisplayTest(filetests[fidx++]);
+		}else{
+			fidx = 0;
+		}
+	}
+}
+
