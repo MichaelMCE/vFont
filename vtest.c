@@ -6,7 +6,7 @@
 // okio@users.sourceforge.net
 // https://youtu.be/T0WgGcm7ujM
 
-//  Copyright (c) 2005-2017  Michael McElligott
+//  Copyright (c) Michael McElligott
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE
@@ -23,7 +23,6 @@
 //	Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-//#pragma GCC optimize ("-O2")
 
 
 #include <stdio.h>
@@ -42,21 +41,17 @@
 
 
 
-
-//static USBHost myusb;
-//static USBHub hub1(myusb);
-//static USBD480Display usbd480(myusb);
-
+#if USBD480
+static USBHost myusb;
+static USBHub hub1(myusb);
+static USBD480Display usbd480(myusb);
+#endif
 
 // i'm a C guy at heart..
-//static vfont_t context;
-//static vfont_t *ctx = &context;
 static uint16_t palette[256];
-//static int doTests = 0;
 
-//#define micros() GetTickCount()
 
-#if 0
+#if USBD480
 enum _pal {
 	COLOUR_PAL_BLACK,
 
@@ -87,6 +82,7 @@ enum _pal {
 };
 #endif
 
+
 static inline void clearFrame (const uint8_t palIdx)
 {
 	memset(renderBuffer, palIdx, VWIDTH * VHEIGHT);
@@ -100,19 +96,19 @@ static inline void clearDisplay ()
 
 static inline void updateDisplay ()
 {
-	//usbd480.drawScreenArea(renderBuffer, VWIDTH, VHEIGHT, 0, 0);
-	
+#if USBD480
+	usbd480.drawScreenArea(renderBuffer, VWIDTH, VHEIGHT, 0, 0);
+#endif
 
 	uint16_t *pixels = (uint16_t*)frame->pixels;
 	
 	for (int i = 0; i < VWIDTH * VHEIGHT; i++)
 		pixels[i] = palette[(uint8_t)renderBuffer[i]];
 	
-	//lRefresh(frame);
 	lUpdate(hw, pixels, VWIDTH*VHEIGHT*2);
 }
 
-#if 0
+#if USBD480
 int driver_callback (uint32_t msg, intptr_t *value1, uint32_t value2)
 {
 	if (msg == USBD_MSG_DISPLAYREADY){
@@ -180,22 +176,18 @@ static inline void buildPalette ()
 	
 	paletteSet(COLOUR_PAL_TOTAL-1,		COLOUR_WHITE);
 }
-/*
-const float length () 
-{
-	return (float)sqrtf((x*x) + (y*y) + (z*z));
-}
-*/
+
 void setup (vfont_t *ctx)
 {
 
-	//while (!Serial) ; // wait for Arduino Serial Monitor
+#if USBD480
+	while (!Serial) ; // wait for Arduino Serial Monitor
 	
-	//Serial.println("vFont");
-	
-	//myusb.begin();
-	//usbd480.setCallbackFunc(driver_callback);
-	//delay(25);
+	Serial.println("vFont");
+	myusb.begin();
+	usbd480.setCallbackFunc(driver_callback);
+	delay(25);
+#endif
 	buildPalette();
 	
 	vfontInitialise(ctx);
@@ -214,12 +206,11 @@ void setup (vfont_t *ctx)
 
 }
 
-char tbuffer[32];
+
 
 void doTests (vfont_t *ctx)
 {
-
-
+	char tbuffer[32];
 
 	clearFrame(COLOUR_PAL_CREAM);
 	//uint32_t t2 = micros();
@@ -414,12 +405,6 @@ void doTests (vfont_t *ctx)
 	setBrushStep(ctx, 1.0f);
 	setAspect(ctx, 1.0f, 1.0f);
 	setGlyphScale(ctx, 3.0f);
-	
-	//getStringMetrics(ctx, "Scale", &box);
-	//int sx = (VWIDTH-box.x2)/2.0f;
-	//int sy = (VHEIGHT-box.y2)/2.0f;
-	//drawRectangle(sx+box.x1, sy+box.y1, sx+box.x2, sy+box.y2, COLOUR_PAL_GREEN);
-	//printf("%f %f\n", box.x2, box.y2);
 
 	setBrushSize(ctx, 2.0f);
 	setBrush(ctx, BRUSH_STROKE_7);
@@ -438,7 +423,6 @@ void doTests (vfont_t *ctx)
 		float length = sqrtf((x * x) + (y * y));
 		//float r = fabsf(x/y);
 		
-		
 		// set thickness;
 		x *= 50.0f * (1.0f/length);
 		y *= 50.0f * (1.0f/length);
@@ -446,15 +430,12 @@ void doTests (vfont_t *ctx)
 		float xh = (x / 2.0f);	// center path by precomputing and using half thickness per side
 		float yh = (y / 2.0f);
 
-
 		drawTriangleFilled(x1+xh, y1+yh, x1-xh, y1-yh, x2+xh, y2+yh, COLOUR_PAL_RED);
 		drawTriangleFilled(x1-xh, y1-yh, x2+xh, y2+yh, x2-xh, y2-yh, COLOUR_PAL_BLUE);
 		
 		drawLine(x1, y1, x2, y2, COLOUR_PAL_BLACK);
 		drawLine(x1, y1, x1-x, y1-y, COLOUR_PAL_DARKGREEN);	// start
 		drawLine(x2, y2, x2-x, y2-y, COLOUR_PAL_BLUE);		// end
-
-		//printf("%f %f, %f\n", x, y, length);
 #endif
 
 
@@ -479,10 +460,6 @@ void doTests (vfont_t *ctx)
 	drawString(ctx, tbuffer, 5, 10);
 #endif
 
-	//updateDisplay();
-	
-	//lSaveImage(frame, L"img.bmp", IMG_BMP, 0, 0);
-	//Sleep(3000);
 }
 	
 

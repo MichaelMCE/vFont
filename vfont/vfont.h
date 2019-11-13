@@ -268,9 +268,9 @@ void setShearAngle (vfont_t *ctx, const float shrX, const float shrY);
 
 float getCharMetrics (vfont_t *ctx, const hfont_t *font, const uint16_t c, float *adv, box_t *box);
 void getGlyphMetrics (vfont_t *ctx, const uint16_t c, int *w, int *h);
-void getStringMetrics (vfont_t *ctx, const uint8_t *text, box_t *box);
+void getStringMetrics (vfont_t *ctx, const char *text, box_t *box);
 
-void drawString (vfont_t *ctx, const uint8_t *text, const int x, const int y);
+void drawString (vfont_t *ctx, const char *text, const int x, const int y);
 
 
 

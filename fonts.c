@@ -25,8 +25,6 @@
 // link in whichever fonts here
 
 
-// feel the magic, this is not how i normally do things.
-
 
 //#include "vfont/fonts/astrology.h"
 //#include "vfont/fonts/cursive.h"

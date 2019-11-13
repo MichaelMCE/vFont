@@ -5,7 +5,7 @@
 // Michael McElligott
 // okio@users.sourceforge.net
 
-//  Copyright (c) 2005-2017  Michael McElligott
+//  Copyright (c) Michael McElligott
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE

@@ -35,34 +35,11 @@
 #include <ctype.h>
 #include <windows.h>
 #include <math.h>
-
-#include <mylcd.h>
-//#include <demos.h>
-
 #include "vfont.h"
 
 
 
 
-
-
-//extern uint8_t renderBuffer[VWIDTH*VHEIGHT];
-
-/*
-#if LINE_FASTEST16
-static inline void drawPixel16 (const int x, const int y, const uint16_t colour)
-{
-	uint16_t *pixels = (uint16_t*)renderBuffer;	
-	pixels[(y*VWIDTH) + x] = colour;
-}
-#else
-static inline void drawPixel8 (const int x, const int y, const uint8_t colour)
-{
-	uint8_t *pixels = (uint8_t*)renderBuffer;	
-	pixels[(y*VWIDTH) + x] = colour;
-}
-#endif
-*/
 
 static inline void drawBrushBitmap (vfont_t *ctx, const int x, const int y, const uint16_t colour)
 {
@@ -442,7 +419,7 @@ void getGlyphMetrics (vfont_t *ctx, const uint16_t c, int *w, int *h)
 	if (h) *h = ((box.y2 - box.y1) + 1.0f) + 0.5f;
 }
 
-void getStringMetrics (vfont_t *ctx, const uint8_t *text, box_t *box)
+void getStringMetrics (vfont_t *ctx, const char *text, box_t *box)
 {
 #if 0
 	int x = ctx->x;
@@ -457,7 +434,7 @@ void getStringMetrics (vfont_t *ctx, const uint8_t *text, box_t *box)
 	
 	while (*text){
 		memset(box, 0, sizeof(box_t));
-		getCharMetrics(ctx, ctx->font, (*text++) -32, &adv, box);
+		getCharMetrics(ctx, ctx->font, ((uint16_t)(*text++))-32, &adv, box);
 #if 0
 		drawRectangle(x+box->x1, y+box->y1, x+box->x2, y+box->y2, COLOUR_PAL_BLUE);
 #endif
@@ -474,14 +451,14 @@ void getStringMetrics (vfont_t *ctx, const uint8_t *text, box_t *box)
 	box->y2 = maxy;
 }
 
-void drawString (vfont_t *ctx, const uint8_t *text, const int x, const int y)
+void drawString (vfont_t *ctx, const char *text, const int x, const int y)
 {
 	ctx->x = ctx->pos.x = x;
 	ctx->y = ctx->pos.y = y;
 	
 	
 	while (*text)
-		drawGlyph(ctx, ctx->font, (*text++)-32);
+		drawGlyph(ctx, ctx->font, ((uint16_t)(*text++))-32);
 }
 
 int setBrushBitmap (vfont_t *ctx, const void *bitmap, const uint8_t width, const uint8_t height)
@@ -649,104 +626,3 @@ void vfontInitialise (vfont_t *ctx)
 	setRenderFilter(ctx, RENDEROP_NONE);
 
 }
-
-#if 0
-int main (int argc, char **argv)
-{
-	
-	//if (!initDemoConfig("config.cfg"))
-	//	return 0;
-
-	//lSetBackgroundColour(hw, lGetRGBMask(frame, LMASK_BLACK));
-	//lSetForegroundColour(hw, lGetRGBMask(frame, LMASK_WHITE));
-	//lClearFrame(frame);
-	
-	vfont_t context;
-	vfont_t *ctx = &context;
-	vfontInitialise(ctx);
-
-	setFont(ctx, FONT_Roman_S);
-	setGlyphPadding(ctx, -1.5f);
-	setGlyphScale(ctx, 3.8f);
-	setBrushColour(ctx, COLOUR_RED);
-	setRenderFilter(ctx, RENDEROP_NONE);
-	
-	//setRenderFilter(ctx, RENDEROP_ROTATE_GLYPHS | RENDEROP_ROTATE_STRING);
-	setRotationAngle(ctx, -45.0f, 25.0f);
-	setShearAngle(ctx, 35.0f, 0.0f);
-
-	//setBrush(ctx, BRUSH_BITMAP);
-	//setBrushBitmap(ctx, smiley16x16, 16, 16);
-
-	int x = 25; int y = 80;
-	
-	setGlyphScale(ctx, 4.0f);
-	setGlyphPadding(ctx, -2.5f);
-	setBrush(ctx, BRUSH_DISK);
-	
-	
-	const int n = 1;
-	//int c = 0;
-	//uint32_t t0 = GetTickCount();
-	for (int i = 0; i < n; i++){
-	
-
-	setAspect(ctx, 1.0f, 1.0f);
-	setGlyphScale(ctx, 4.0f);
-	setGlyphPadding(ctx, -2.5f);
-	setBrush(ctx, BRUSH_DISK);
-	setBrushStep(ctx, 8.0f);
-	setBrushSize(ctx, 60.0f);
-	setBrushColour(ctx, COLOUR_24TO16(0x00AA55));
-	drawString(ctx, "Hello World!", x, y);
-		
-	setBrushStep(ctx, 4.0f);
-	setBrushSize(ctx, 19.0f);
-	setBrushColour(ctx, COLOUR_24TO16(0x444444));
-	drawString(ctx, "Hello World!", x, y);
-
-	setBrushStep(ctx, 2.0f);
-	setBrushSize(ctx, 4.0f);
-	setBrushColour(ctx, COLOUR_24TO16(0xFFBF33));
-	drawString(ctx, "Hello World!", x, y);
-	
-	setBrushColour(ctx, COLOUR_24TO16(0x444444));
-	setBrushStep(ctx, 1.0f);
-	setBrushSize(ctx, 1.0f);
-	drawString(ctx, "Hello World!", x, y);
-
-	setBrush(ctx, BRUSH_STROKE_6);
-	setGlyphPadding(ctx, -2.5f);
-	setBrushStep(ctx, 1.0f);
-	setBrushSize(ctx, 13.0f);
-	setBrushColour(ctx, COLOUR_24TO16(0xFF0045));
-	drawString(ctx, "0123456789", 5, y+125);
-
-	
-	setAspect(ctx, -1.0f, 1.0f);
-	//setGlyphPadding(ctx, 0.0f);
-	setGlyphScale(ctx, 4.0f);
-	setBrushStep(ctx, 1.0f);
-	setBrushSize(ctx, 1.0f);
-	setBrushColour(ctx, COLOUR_24TO16(0xFF0045));
-	drawString(ctx, "0123456789", 5, y+220);
-
-	//c++;
-	//c += i;
-	}
-	
-	//uint32_t t1 = GetTickCount();
-	//float t = (t1 - t0) / (float)n;
-	
-	//printf("time %i, n:%i, %u %.5f\n", c, n, (t1 - t0), t);
-
-	//lRefresh(frame);
-	//lSaveImage(frame, L"img.bmp", IMG_BMP, 0, 0);
-	//Sleep(3000);
-	
-	//demoCleanup();	
-	//return 0;
-}
-
-#endif
-
