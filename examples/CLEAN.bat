@@ -5,6 +5,5 @@ del *.bak
 del *.exe
 del *.bmp
 
-cd vfont
-call clean.bat
+make clean
 cd ..

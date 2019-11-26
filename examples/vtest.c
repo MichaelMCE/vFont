@@ -24,20 +24,7 @@
 
 
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <string.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <windows.h>
-#include <math.h>
-
-#include <mylcd.h>
-#include <demos.h>
-
-#include "vfont/vfont.h"
+#include "common.h"
 
 
 
@@ -47,7 +34,8 @@ static USBHub hub1(myusb);
 static USBD480Display usbd480(myusb);
 #endif
 
-// i'm a C guy at heart..
+
+// should really do something about this
 static uint16_t palette[256];
 
 
@@ -412,30 +400,30 @@ void doTests (vfont_t *ctx)
 #endif
 
 #if 0
-		float x1 = 50.0f;
-		float y1 = 50.0f;
-		float x2 = 600.0f;
-		float y2 = 400.0f;
+	float x1 = 50.0f;
+	float y1 = 50.0f;
+	float x2 = 600.0f;
+	float y2 = 400.0f;
 
-		// cross product
-		float x = (y1 * 1.0f) - (1.0f * y2);
-		float y = (1.0f * x2) - (x1 * 1.0f);
-		float length = sqrtf((x * x) + (y * y));
-		//float r = fabsf(x/y);
+	// cross product
+	float x = (y1 * 1.0f) - (1.0f * y2);
+	float y = (1.0f * x2) - (x1 * 1.0f);
+	float length = sqrtf((x * x) + (y * y));
+	//float r = fabsf(x/y);
 		
-		// set thickness;
-		x *= 50.0f * (1.0f/length);
-		y *= 50.0f * (1.0f/length);
+	// set thickness;
+	x *= 50.0f * (1.0f/length);
+	y *= 50.0f * (1.0f/length);
 
-		float xh = (x / 2.0f);	// center path by precomputing and using half thickness per side
-		float yh = (y / 2.0f);
+	float xh = (x / 2.0f);	// center path by precomputing and using half thickness per side
+	float yh = (y / 2.0f);
 
-		drawTriangleFilled(x1+xh, y1+yh, x1-xh, y1-yh, x2+xh, y2+yh, COLOUR_PAL_RED);
-		drawTriangleFilled(x1-xh, y1-yh, x2+xh, y2+yh, x2-xh, y2-yh, COLOUR_PAL_BLUE);
+	drawTriangleFilled(x1+xh, y1+yh, x1-xh, y1-yh, x2+xh, y2+yh, COLOUR_PAL_RED);
+	drawTriangleFilled(x1-xh, y1-yh, x2+xh, y2+yh, x2-xh, y2-yh, COLOUR_PAL_BLUE);
 		
-		drawLine(x1, y1, x2, y2, COLOUR_PAL_BLACK);
-		drawLine(x1, y1, x1-x, y1-y, COLOUR_PAL_DARKGREEN);	// start
-		drawLine(x2, y2, x2-x, y2-y, COLOUR_PAL_BLUE);		// end
+	drawLine(x1, y1, x2, y2, COLOUR_PAL_BLACK);
+	drawLine(x1, y1, x1-x, y1-y, COLOUR_PAL_DARKGREEN);	// start
+	drawLine(x2, y2, x2-x, y2-y, COLOUR_PAL_BLUE);		// end
 #endif
 
 
@@ -475,7 +463,7 @@ int main (int argc, char **args)
 	vfont_t context;
 	setup(&context);
 	
-	const int num = 1000;
+	const int num = 2000;
 	const uint32_t t1 = GetTickCount();
 	
 	for (int i = 0; i < num; i++){
