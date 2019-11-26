@@ -39,8 +39,14 @@ typedef struct {
 	int value;
 }TMYLCDDEMO;
 
+
 #undef mylog
-#define mylog printf
+
+#if 1
+# define mylog(X,...)
+#else
+# define mylog printf
+#endif
 
 #include "../fileal.h"
 

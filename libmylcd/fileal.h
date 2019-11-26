@@ -31,7 +31,6 @@
 #define my_malloc	malloc
 #define my_free		free
 #define my_realloc	realloc
-#define mylog		printf
 #define ubyte		unsigned char
 
 

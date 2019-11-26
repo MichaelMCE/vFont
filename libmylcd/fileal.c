@@ -28,7 +28,13 @@
 #include "fileal.h"
 
 
+#undef mylog
 
+#if 1
+# define mylog(X,...)
+#else
+# define mylog printf
+#endif
 
 
 uint64_t lof (FILE *stream)
