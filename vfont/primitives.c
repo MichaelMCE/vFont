@@ -31,7 +31,6 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "../libmylcd/include/mylcd.h"
 #include "vfont.h"
 #include "hfont.h"
 
@@ -121,30 +120,30 @@ static inline void drawHLine (const int y, int x1, int x2, const uint16_t colour
 		drawPixel(x, y, colour);
 }
 
-#define L 0x1
-#define B 0x2
-#define R 0x4
-#define T 0x8
+#define REGION_TOP		0x1
+#define REGION_BOTTOM	0x2
+#define REGION_RIGHT	0x4
+#define REGION_LEFT		0x8
+
 
 static inline int findRegion (const int x, const int y)
 {
 	int code = 0;
 	
 	if (y >= VHEIGHT)
-		code = L;		// top
+		code = REGION_TOP;			// top
 	else if (y < 0)
-		code |= B;		// bottom
+		code |= REGION_BOTTOM;		// bottom
 
 	if (x >= VWIDTH)
-		code |= R;		// right
+		code |= REGION_RIGHT;		// right
 	else if ( x < 0)
-		code |= T;		// left
+		code |= REGION_LEFT;		// left
 
 	return code;
 }
 
 #if 0
-
 // slighty faster Cohen-Sutherland
 static inline int clipLine (int x1, int y1, int x2, int y2, int *x3, int *y3, int *x4, int *y4)
 {
@@ -171,19 +170,19 @@ static inline int clipLine (int x1, int y1, int x2, int y2, int *x3, int *y3, in
         
         //find intersection pts.
         //only do 1 intersection pt inside 1 iteration
-        if (code1&L){
+        if (code1&REGION_TOP){
             y1 = y1+ ((y2-y1)*(-x1))/(x2-x1);
             x1 = 0;
             
-        }else if (code1&R){
+        }else if (code1&REGION_RIGHT){
             y1 = y1+ ((y2-y1)*((VWIDTH-1)-x1))/(x2-x1);
             x1 = VWIDTH-2;
             
-        }else if (code1&T){
+        }else if (code1&REGION_LEFT){
             x1 = x1 + ((x2-x1)*((VHEIGHT-1)-y1))/(y2 - y1);
             y1 = VHEIGHT-2;
             
-        }else if (code1&B){
+        }else if (code1&REGION_BOTTOM){
             x1 = x1 + ((x2-x1)*(-y1))/(y2 - y1);
             y1 = 0;
         }
@@ -262,13 +261,13 @@ static inline int clipLine (int x1, int y1, int x2, int y2, int *x3, int *y3, in
 		}else{  //if no trivial reject or accept, continue the loop
 			int x, y;
 			int codeout = code1 ? code1 : code2;
-			if (codeout&1){			//top
+			if (codeout&REGION_TOP){			//top
 				x = x1 + (x2 - x1) * (h - y1) / (y2 - y1);
 				y = h - 1;
-			}else if (codeout&2){	//bottom
+			}else if (codeout&REGION_BOTTOM){	//bottom
 				x = x1 + (x2 - x1) * -y1 / (y2 - y1);
 				y = 0;
-			}else if (codeout&4){	//right
+			}else if (codeout&REGION_RIGHT){	//right
 				y = y1 + (y2 - y1) * (w - x1) / (x2 - x1);
 				x = w - 1;
 			}else{					//left

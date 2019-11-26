@@ -6,4 +6,3 @@ del *.exe
 del *.bmp
 
 make clean
-cd ..
