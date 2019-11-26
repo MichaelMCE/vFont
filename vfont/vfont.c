@@ -166,7 +166,6 @@ static inline void drawBrush (vfont_t *ctx, float xc, float yc, const float radi
 static inline float distance (const float x1, const float y1, const float x2, const float y2)
 {
 	return sqrtf((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-	//return sqrtf((x1 * x2) + (y1 * y2));
 }
 
 //check if point2 is between point1 and point3 (the 3 points should be on the same line)
@@ -258,8 +257,6 @@ static inline void drawVector (vfont_t *ctx, float x1, float y1, float x2, float
 
 	
 	if (ctx->renderOp&RENDEROP_ROTATE_GLYPHS){
-		//float x1r, y1r, x2r, y2r;
-
 		// undo string transform
 		x1 += ctx->x; x2 += ctx->x;
 		y1 += ctx->y; y2 += ctx->y;
@@ -273,7 +270,6 @@ static inline void drawVector (vfont_t *ctx, float x1, float y1, float x2, float
 
 		x1 += ctx->pos.x - ctx->x; x2 += ctx->pos.x - ctx->x;
 		y1 += ctx->pos.y - ctx->y; y2 += ctx->pos.y - ctx->y;
-
 	}
 	
 	if (ctx->renderOp&RENDEROP_ROTATE_STRING){
@@ -295,19 +291,12 @@ static inline float char2float (vfont_t *ctx, const uint8_t c)
 	return ctx->scale.glyph * (float)(c - 'R');
 }
 
-
-//static pos_t points[128];
-//static int posIdx = 0;
-
-
-
 // returns horizontal glyph advance
 static inline float drawGlyph (vfont_t *ctx, const hfont_t *font, const uint16_t c)
 {
 
 	if (c >= font->glyphCount) return 0.0f;
 	
-	//const uint8_t *hc = (uint8_t*)font->glyphs[c].data;
 	const uint8_t *hc = (uint8_t*)font->glyphs[c];
 	const float lm = char2float(ctx, *hc++) * fabsf(ctx->scale.horizontal);
 	const float rm = char2float(ctx, *hc++) * fabsf(ctx->scale.horizontal);
@@ -356,8 +345,7 @@ float getCharMetrics (vfont_t *ctx, const hfont_t *font, const uint16_t c, float
 {
 
 	if (c >= font->glyphCount) return 0.0f;
-	
-	//const uint8_t *hc = (uint8_t*)font->glyphs[c].data;
+
 	const uint8_t *hc = (uint8_t*)font->glyphs[c];
 	const float lm = char2float(ctx, *hc++) * fabsf(ctx->scale.horizontal);
 	const float rm = char2float(ctx, *hc++) * fabsf(ctx->scale.horizontal);
@@ -395,17 +383,12 @@ float getCharMetrics (vfont_t *ctx, const hfont_t *font, const uint16_t c, float
 	maxx *= fabsf(ctx->scale.horizontal);
 	miny *= fabsf(ctx->scale.vertical);
 	maxy *= fabsf(ctx->scale.vertical);
-	
-	//printf("%c ::%f %f %f %f\n", c+32, minx, miny, maxx, maxy);
-	
+		
 	float brushSize = ctx->brush.size / 2.0f;
 	box->x1 = (startX + minx) - brushSize;
 	box->y1 = (startY + miny) - brushSize;
 	box->x2 = (startX + maxx) + brushSize;
 	box->y2 = (startY + maxy) + brushSize;
-
-
-	//printf("    %f %f\n", startX, startY);
 
 	if (adv) *adv = startX + rm + ctx->xpad;
 	return startX + rm + ctx->xpad;
@@ -614,8 +597,6 @@ void setAspect (vfont_t *ctx, const float hori, const float vert)
 void vfontInitialise (vfont_t *ctx)
 {
 	memset(ctx, 0, sizeof(*ctx));
-
-	//renderBuffer = (uint8_t*)frame->pixels;
 
 	setAspect(ctx, 1.0f, 1.0f);
 	setGlyphPadding(ctx, -1.0f);
