@@ -16,8 +16,8 @@ endif
 #GLOP = -ftree-vectorize -floop-interchange -floop-strip-mine -floop-block
 GLOP =
 
-#CFLAGS = $(BITMODE) -I../libmylcd/include -I../vfont/ -Wall -march=i686 -mtune=i686 -O2 -DSTBI_FAILURE_USERMSG -D_WIN32 -D_WIN32_WINNT=0x0501 -DWINVER=0x0501 -D__WIN32__=1 -std=gnu99 -funroll-loops -finline-functions -fomit-frame-pointer -pipe -s -DUSE_MMX -DHAVE_MMX -DHAVE_MMX1 -DUSE_MMX1 -mmmx -msse -mfpmath=sse,387 -fgcse-las -fgcse-sm -fgcse-lm -fmodulo-sched-allow-regmoves -fmodulo-sched -ftree-vectorizer-verbose=0 $(GLOP)
-CFLAGS = $(BITMODE) -static-libgcc -I../libmylcd/include -I../vfont/ -O2 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -std=gnu99  -Wall -march=i686 -mtune=i686
+#CFLAGS = $(BITMODE) -I../libmylcd/include -I../src/ -Wall -march=i686 -mtune=i686 -O2 -DSTBI_FAILURE_USERMSG -D_WIN32 -D_WIN32_WINNT=0x0501 -DWINVER=0x0501 -D__WIN32__=1 -std=gnu99 -funroll-loops -finline-functions -fomit-frame-pointer -pipe -s -DUSE_MMX -DHAVE_MMX -DHAVE_MMX1 -DUSE_MMX1 -mmmx -msse -mfpmath=sse,387 -fgcse-las -fgcse-sm -fgcse-lm -fmodulo-sched-allow-regmoves -fmodulo-sched -ftree-vectorizer-verbose=0 $(GLOP)
+CFLAGS = $(BITMODE) -static-libgcc -I../libmylcd/include -I../src/ -O2 -D_WIN32_WINNT=0x0601 -DWINVER=0x0601 -D__WIN32__=1 -std=gnu99  -Wall -march=i686 -mtune=i686
 LIBS = $(BITMODE) -static-libgcc -L"../libmylcd/libs/$(MDIR)/" -L"lib" -lm -lmylcddll -lole32 
 
 
@@ -29,7 +29,7 @@ all : $(EXAMPLES)
 
 # fileal.o 
 
-vtest.exe: vtest.o ../vfont/primitives.o ../vfont/vfont.o ../libmylcd/fileal.o fonts.o
+vtest.exe: vtest.o ../src/primitives.o ../src/vfont.o ../libmylcd/fileal.o fonts.o
 	$(CC) -static-libgcc -o $@ $^ $(LIBS)
 	strip.exe $@
 
